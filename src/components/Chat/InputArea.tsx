@@ -19,6 +19,16 @@ export const InputArea = ({ input, setInput, onSend, isLoading }: InputAreaProps
         }
     }, [input]);
 
+    // Listen for custom event to set input from example questions
+    useEffect(() => {
+        const handler = (e: CustomEvent) => {
+            setInput(e.detail);
+            textareaRef.current?.focus();
+        };
+        window.addEventListener('setInput', handler as EventListener);
+        return () => window.removeEventListener('setInput', handler as EventListener);
+    }, [setInput]);
+
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -34,7 +44,7 @@ export const InputArea = ({ input, setInput, onSend, isLoading }: InputAreaProps
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Ask Gemini anything..."
+                    placeholder="Ask about PC building, hardware, compatibility..."
                     rows={1}
                     className="w-full bg-transparent text-gray-100 placeholder-purple-700 px-4 py-3 max-h-40 resize-none focus:outline-none"
                     disabled={isLoading}
@@ -48,7 +58,7 @@ export const InputArea = ({ input, setInput, onSend, isLoading }: InputAreaProps
                 </button>
             </div>
             <div className="text-center mt-2">
-                <p className="text-xs text-purple-700">Gemini can make mistakes. Consider checking important information.</p>
+                <p className="text-xs text-purple-700">PC Building Expert • Grounded with Google Search</p>
             </div>
         </div>
     );

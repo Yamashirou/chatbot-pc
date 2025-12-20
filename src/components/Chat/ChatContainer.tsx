@@ -1,4 +1,4 @@
-import { Trash2 } from 'lucide-react';
+import { Trash2, Cpu } from 'lucide-react';
 import { useChat } from '../../hooks/useChat';
 import { InputArea } from './InputArea';
 import { MessageList } from './MessageList';
@@ -19,14 +19,14 @@ export const ChatContainer = () => {
             {/* Header */}
             <header className="flex-none p-4 border-b border-purple-900/50 flex justify-between items-center bg-black sticky top-0 z-10">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-purple-600 flex items-center justify-center font-bold text-sm">
-                        G
+                    <div className="w-8 h-8 bg-purple-600 flex items-center justify-center">
+                        <Cpu size={18} />
                     </div>
                     <div>
-                        <h1 className="font-semibold text-sm md:text-base text-purple-300">Gemini Chat</h1>
+                        <h1 className="font-semibold text-sm md:text-base text-purple-300">PC Building Assistant</h1>
                         <span className="text-xs text-purple-500 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 bg-purple-400"></span>
-                            Online • Grounding Enabled
+                            Gemini 2.5 Flash • Grounding Enabled
                         </span>
                     </div>
                 </div>
