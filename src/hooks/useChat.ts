@@ -50,8 +50,8 @@ export const useChat = () => {
             lastModifiedAt: now,
         };
 
-        // Update title if this is the first user message
-        if (updatedMessages.length === 1 && updatedMessages[0].role === 'user') {
+        // Always update title based on messages (will use first user message)
+        if (updatedMessages.length > 0) {
             updatedConversation = updateConversationTitle(updatedConversation);
         }
 
@@ -88,10 +88,12 @@ export const useChat = () => {
     }, [activeConversationId]);
 
     const stopGeneration = useCallback(() => {
+        console.log('[useChat] stopGeneration called, abortController exists:', !!abortControllerRef.current);
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
             abortControllerRef.current = null;
             setIsLoading(false);
+            console.log('[useChat] Request aborted, isLoading set to false');
         }
     }, []);
 
@@ -109,12 +111,14 @@ export const useChat = () => {
         const updatedMessagesWithUser = [...messages, newUserMessage];
         saveActiveConversation(updatedMessagesWithUser);
 
+        console.log('[useChat] sendMessage starting, setting isLoading true');
         setInput('');
         setIsLoading(true);
         setError(null);
 
         // Create new AbortController for this request
         abortControllerRef.current = new AbortController();
+        console.log('[useChat] AbortController created');
 
         try {
             const responseText = await generateResponse(messages, text, abortControllerRef.current.signal);
@@ -128,14 +132,19 @@ export const useChat = () => {
 
             const updatedMessagesWithAi = [...updatedMessagesWithUser, newAiMessage];
             saveActiveConversation(updatedMessagesWithAi);
+            console.log('[useChat] Response received and saved');
         } catch (err: any) {
             // Don't show error if request was aborted by user
             if (err.name !== 'AbortError') {
                 setError(err.message || 'Something went wrong');
+                console.error('[useChat] Error:', err);
+            } else {
+                console.log('[useChat] Request was aborted by user');
             }
         } finally {
             setIsLoading(false);
             abortControllerRef.current = null;
+            console.log('[useChat] Request completed, isLoading set to false');
         }
     }, [messages, activeConversationId, saveActiveConversation]);
 

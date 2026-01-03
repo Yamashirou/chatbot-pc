@@ -52,9 +52,12 @@ export const InputArea = ({ input, setInput, onSend, onStop, isLoading }: InputA
                 />
                 {isLoading ? (
                     <button
-                        onClick={onStop}
+                        onClick={() => {
+                            console.log('[InputArea] Stop button clicked, isLoading:', isLoading);
+                            onStop();
+                        }}
                         className="p-3 bg-red-600 text-white hover:bg-red-500 transition-all mb-0.5"
-                        title="Stop generation"
+                        title="Hentikan respons"
                     >
                         <StopCircle size={20} />
                     </button>

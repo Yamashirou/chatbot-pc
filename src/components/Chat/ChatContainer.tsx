@@ -1,4 +1,4 @@
-import { Trash2, Cpu } from 'lucide-react';
+import { Cpu, PanelLeft } from 'lucide-react';
 import { useState } from 'react';
 import { useChat } from '../../hooks/useChat';
 import { InputArea } from './InputArea';
@@ -18,7 +18,6 @@ export const ChatContainer = () => {
         isLoading,
         error,
         sendMessage,
-        clearHistory,
         stopGeneration
     } = useChat();
 
@@ -42,6 +41,15 @@ export const ChatContainer = () => {
                 {/* Header */}
                 <header className="flex-none p-4 border-b border-purple-900/50 flex justify-between items-center bg-black sticky top-0 z-10">
                     <div className="flex items-center gap-3">
+                        {/* Toggle Sidebar Button */}
+                        <button
+                            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                            className="p-2 bg-purple-900/50 hover:bg-purple-800/50 border border-purple-700 text-purple-300 transition-all"
+                            title={isSidebarCollapsed ? 'Tampilkan sidebar' : 'Sembunyikan sidebar'}
+                        >
+                            <PanelLeft size={18} className={`transition-transform ${isSidebarCollapsed ? '' : 'rotate-180'}`} />
+                        </button>
+
                         <div className="w-8 h-8 bg-purple-600 flex items-center justify-center">
                             <Cpu size={18} />
                         </div>
@@ -53,20 +61,6 @@ export const ChatContainer = () => {
                             </span>
                         </div>
                     </div>
-
-                    {messages.length > 0 && (
-                        <button
-                            onClick={() => {
-                                if (confirm('Apakah Anda yakin ingin menghapus riwayat chat?')) {
-                                    clearHistory();
-                                }
-                            }}
-                            className="p-2 text-purple-400 hover:text-purple-300 hover:bg-purple-950/50 transition-colors"
-                            title="Hapus Riwayat"
-                        >
-                            <Trash2 size={18} />
-                        </button>
-                    )}
                 </header>
 
                 {/* Main Chat Area */}

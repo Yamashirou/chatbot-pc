@@ -1,4 +1,4 @@
-import { PanelLeft, MessageSquarePlus } from 'lucide-react';
+import { MessageSquarePlus } from 'lucide-react';
 import type { Conversation } from '../../lib/conversationStorage';
 import { ConversationItem } from './ConversationItem';
 
@@ -22,63 +22,51 @@ export const ChatSidebar = ({
     onToggleCollapse,
 }: ChatSidebarProps) => {
     return (
-        <>
-            {/* Sidebar */}
-            <div
-                className={`
-                    flex-shrink-0 bg-black border-r border-purple-900/50 
-                    transition-all duration-300 ease-in-out overflow-hidden
-                    ${isCollapsed ? 'w-0' : 'w-72'}
-                `}
-            >
-                <div className="flex flex-col h-full w-72">
-                    {/* Sidebar Header */}
-                    <div className="p-3 border-b border-purple-900/50">
-                        <button
-                            onClick={onNewConversation}
-                            className="w-full px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                        >
-                            <MessageSquarePlus size={18} />
-                            Chat Baru
-                        </button>
-                    </div>
+        <div
+            className={`
+                flex-shrink-0 bg-black border-r border-purple-900/50 
+                transition-all duration-300 ease-in-out overflow-hidden
+                ${isCollapsed ? 'w-0' : 'w-72'}
+            `}
+        >
+            <div className="flex flex-col h-full w-72">
+                {/* Sidebar Header */}
+                <div className="p-3 border-b border-purple-900/50">
+                    <button
+                        onClick={onNewConversation}
+                        className="w-full px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                    >
+                        <MessageSquarePlus size={18} />
+                        Chat Baru
+                    </button>
+                </div>
 
-                    {/* Conversations List */}
-                    <div className="flex-1 overflow-y-auto">
-                        {conversations.length === 0 ? (
-                            <div className="p-4 text-center text-purple-700 text-sm">
-                                Belum ada percakapan
-                            </div>
-                        ) : (
-                            <div className="py-2">
-                                {conversations.map((conv) => (
-                                    <ConversationItem
-                                        key={conv.id}
-                                        conversation={conv}
-                                        isActive={conv.id === activeConversationId}
-                                        onClick={() => onSelectConversation(conv.id)}
-                                        onDelete={(e) => {
-                                            e.stopPropagation();
-                                            if (confirm('Hapus percakapan ini?')) {
-                                                onDeleteConversation(conv.id);
-                                            }
-                                        }}
-                                    />
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                {/* Conversations List */}
+                <div className="flex-1 overflow-y-auto">
+                    {conversations.length === 0 ? (
+                        <div className="p-4 text-center text-purple-700 text-sm">
+                            Belum ada percakapan
+                        </div>
+                    ) : (
+                        <div className="py-2">
+                            {conversations.map((conv) => (
+                                <ConversationItem
+                                    key={conv.id}
+                                    conversation={conv}
+                                    isActive={conv.id === activeConversationId}
+                                    onClick={() => onSelectConversation(conv.id)}
+                                    onDelete={(e) => {
+                                        e.stopPropagation();
+                                        if (confirm('Hapus percakapan ini?')) {
+                                            onDeleteConversation(conv.id);
+                                        }
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
-
-            {/* Toggle Button - Positioned absolutely on the left edge when collapsed */}
-            <button
-                onClick={onToggleCollapse}
-                className="fixed top-4 left-4 z-20 p-2 bg-purple-900/50 hover:bg-purple-800/50 border border-purple-700 text-purple-300 transition-all"
-                title={isCollapsed ? 'Tampilkan sidebar' : 'Sembunyikan sidebar'}
-            >
-                <PanelLeft size={18} className={`transition-transform ${isCollapsed ? '' : 'rotate-180'}`} />
-            </button>
-        </>
+        </div>
     );
 };
