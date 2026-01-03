@@ -1,14 +1,15 @@
-import { Send } from 'lucide-react';
+import { Send, StopCircle } from 'lucide-react';
 import { useRef, useEffect } from 'react';
 
 interface InputAreaProps {
     input: string;
     setInput: (value: string) => void;
     onSend: () => void;
+    onStop: () => void;
     isLoading: boolean;
 }
 
-export const InputArea = ({ input, setInput, onSend, isLoading }: InputAreaProps) => {
+export const InputArea = ({ input, setInput, onSend, onStop, isLoading }: InputAreaProps) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     // Auto-resize textarea
@@ -49,13 +50,23 @@ export const InputArea = ({ input, setInput, onSend, isLoading }: InputAreaProps
                     className="w-full bg-transparent text-gray-100 placeholder-purple-700 px-4 py-3 max-h-40 resize-none focus:outline-none"
                     disabled={isLoading}
                 />
-                <button
-                    onClick={onSend}
-                    disabled={!input.trim() || isLoading}
-                    className="p-3 bg-purple-600 text-white hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all mb-0.5"
-                >
-                    <Send size={20} />
-                </button>
+                {isLoading ? (
+                    <button
+                        onClick={onStop}
+                        className="p-3 bg-red-600 text-white hover:bg-red-500 transition-all mb-0.5"
+                        title="Stop generation"
+                    >
+                        <StopCircle size={20} />
+                    </button>
+                ) : (
+                    <button
+                        onClick={onSend}
+                        disabled={!input.trim()}
+                        className="p-3 bg-purple-600 text-white hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all mb-0.5"
+                    >
+                        <Send size={20} />
+                    </button>
+                )}
             </div>
             <div className="text-center mt-2">
                 <p className="text-xs text-purple-700">PC Building Expert • Grounded with Google Search</p>

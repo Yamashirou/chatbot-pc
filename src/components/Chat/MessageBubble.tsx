@@ -57,7 +57,7 @@ export const MessageBubble = ({ message, isLast }: MessageBubbleProps) => {
                 <div className="flex flex-col">
                     <div className="flex items-center gap-2 mb-1 opacity-70 text-xs">
                         {isUser ? <User size={14} /> : <Bot size={14} />}
-                        <span>{isUser ? 'You' : 'Gemini'}</span>
+                        <span>{isUser ? 'You' : 'BuildMate'}</span>
                     </div>
                     <div className="whitespace-pre-wrap leading-relaxed text-sm md:text-base">
                         {displayedText}

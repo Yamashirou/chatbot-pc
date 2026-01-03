@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { type ChatMessage, generateResponse } from '../lib/gemini';
 
 const STORAGE_KEY = 'gemini-chat-history';
@@ -8,6 +8,7 @@ export const useChat = () => {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const abortControllerRef = useRef<AbortController | null>(null);
 
     // Load from local storage on mount
     useEffect(() => {
@@ -31,6 +32,14 @@ export const useChat = () => {
         localStorage.removeItem(STORAGE_KEY);
     };
 
+    const stopGeneration = useCallback(() => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            abortControllerRef.current = null;
+            setIsLoading(false);
+        }
+    }, []);
+
     const sendMessage = useCallback(async (text: string) => {
         if (!text.trim()) return;
 
@@ -47,8 +56,11 @@ export const useChat = () => {
         setIsLoading(true);
         setError(null);
 
+        // Create new AbortController for this request
+        abortControllerRef.current = new AbortController();
+
         try {
-            const responseText = await generateResponse(messages, text);
+            const responseText = await generateResponse(messages, text, abortControllerRef.current.signal);
 
             const newAiMessage: ChatMessage = {
                 id: crypto.randomUUID(),
@@ -59,9 +71,13 @@ export const useChat = () => {
 
             setMessages(prev => [...prev, newAiMessage]);
         } catch (err: any) {
-            setError(err.message || 'Something went wrong');
+            // Don't show error if request was aborted by user
+            if (err.name !== 'AbortError') {
+                setError(err.message || 'Something went wrong');
+            }
         } finally {
             setIsLoading(false);
+            abortControllerRef.current = null;
         }
     }, [messages]);
 
@@ -72,6 +88,7 @@ export const useChat = () => {
         isLoading,
         error,
         sendMessage,
-        clearHistory
+        clearHistory,
+        stopGeneration
     };
 };

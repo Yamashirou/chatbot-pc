@@ -11,7 +11,8 @@ export const ChatContainer = () => {
         isLoading,
         error,
         sendMessage,
-        clearHistory
+        clearHistory,
+        stopGeneration
     } = useChat();
 
     return (
@@ -23,7 +24,7 @@ export const ChatContainer = () => {
                         <Cpu size={18} />
                     </div>
                     <div>
-                        <h1 className="font-semibold text-sm md:text-base text-purple-300">PC Building Assistant</h1>
+                        <h1 className="font-semibold text-sm md:text-base text-purple-300">BuildMate - PC Building Assistant</h1>
                         <span className="text-xs text-purple-500 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 bg-purple-400"></span>
                             Gemini 2.5 Flash • Grounding Enabled
@@ -62,6 +63,7 @@ export const ChatContainer = () => {
                 input={input}
                 setInput={setInput}
                 onSend={() => sendMessage(input)}
+                onStop={stopGeneration}
                 isLoading={isLoading}
             />
         </div>
