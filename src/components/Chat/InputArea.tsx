@@ -45,7 +45,7 @@ export const InputArea = ({ input, setInput, onSend, onStop, isLoading }: InputA
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Ask about PC building, hardware, compatibility..."
+                    placeholder="Tanyakan tentang rakit PC, hardware, kompatibilitas..."
                     rows={1}
                     className="w-full bg-transparent text-gray-100 placeholder-purple-700 px-4 py-3 max-h-40 resize-none focus:outline-none"
                     disabled={isLoading}
@@ -69,7 +69,7 @@ export const InputArea = ({ input, setInput, onSend, onStop, isLoading }: InputA
                 )}
             </div>
             <div className="text-center mt-2">
-                <p className="text-xs text-purple-700">PC Building Expert • Grounded with Google Search</p>
+                <p className="text-xs text-purple-700">Ahli Rakit PC • Didukung Google Search</p>
             </div>
         </div>
     );

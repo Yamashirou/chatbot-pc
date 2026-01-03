@@ -8,11 +8,11 @@ interface MessageListProps {
 }
 
 const EXAMPLE_QUESTIONS = [
-    "Build a PC with a budget of 15 million IDR",
-    "Explain AMD vs Intel CPU differences",
-    "Compare NVIDIA and AMD GPUs",
-    "Check my component compatibility",
-    "Recommend upgrade path for my system"
+    "Rakit PC dengan budget 15 juta IDR",
+    "Jelaskan perbedaan CPU AMD vs Intel",
+    "Bandingkan GPU NVIDIA dan AMD",
+    "Cek kompatibilitas komponen saya",
+    "Rekomendasi upgrade untuk sistem saya"
 ];
 
 export const MessageList = ({ messages, isLoading }: MessageListProps) => {
@@ -26,8 +26,8 @@ export const MessageList = ({ messages, isLoading }: MessageListProps) => {
         return (
             <div className="flex-1 flex flex-col items-center justify-center text-purple-400 p-8 text-center h-full">
                 <div className="w-16 h-16 bg-purple-900/50 flex items-center justify-center mb-4 text-3xl border border-purple-700">🖥️</div>
-                <h2 className="text-xl font-semibold text-purple-200 mb-2">PC Building Assistant</h2>
-                <p className="max-w-md text-purple-500 mb-6">Expert-level knowledge of PC hardware, component compatibility, and performance optimization.</p>
+                <h2 className="text-xl font-semibold text-purple-200 mb-2">Asisten Rakit PC</h2>
+                <p className="max-w-md text-purple-500 mb-6">Pengetahuan tingkat ahli tentang hardware PC, kompatibilitas komponen, dan optimasi performa.</p>
 
                 <div className="flex flex-wrap justify-center gap-2 max-w-2xl">
                     {EXAMPLE_QUESTIONS.map((q, i) => (

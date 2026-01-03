@@ -1,36 +1,91 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { type ChatMessage, generateResponse } from '../lib/gemini';
-
-const STORAGE_KEY = 'gemini-chat-history';
+import {
+    type Conversation,
+    getAllConversations,
+    saveConversation,
+    deleteConversation as deleteConversationFromStorage,
+    createNewConversation as createConversation,
+    updateConversationTitle,
+} from '../lib/conversationStorage';
 
 export const useChat = () => {
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [conversations, setConversations] = useState<Conversation[]>([]);
+    const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
 
-    // Load from local storage on mount
+    // Load conversations on mount
     useEffect(() => {
-        const savedMessages = localStorage.getItem(STORAGE_KEY);
-        if (savedMessages) {
-            try {
-                setMessages(JSON.parse(savedMessages));
-            } catch (e) {
-                console.error("Failed to parse chat history", e);
-            }
+        const loadedConversations = getAllConversations();
+
+        if (loadedConversations.length === 0) {
+            // Create initial conversation for new users
+            const newConv = createConversation();
+            saveConversation(newConv);
+            setConversations([newConv]);
+            setActiveConversationId(newConv.id);
+        } else {
+            setConversations(loadedConversations);
+            // Set most recent conversation as active
+            setActiveConversationId(loadedConversations[0].id);
         }
     }, []);
 
-    // Save to local storage whenever messages change
-    useEffect(() => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-    }, [messages]);
+    // Get active conversation
+    const activeConversation = conversations.find(conv => conv.id === activeConversationId);
+    const messages = activeConversation?.messages || [];
 
-    const clearHistory = () => {
-        setMessages([]);
-        localStorage.removeItem(STORAGE_KEY);
-    };
+    // Save active conversation whenever it changes
+    const saveActiveConversation = useCallback((updatedMessages: ChatMessage[]) => {
+        if (!activeConversationId) return;
+
+        const now = Date.now();
+        let updatedConversation: Conversation = {
+            ...(activeConversation || createConversation()),
+            id: activeConversationId,
+            messages: updatedMessages,
+            lastModifiedAt: now,
+        };
+
+        // Update title if this is the first user message
+        if (updatedMessages.length === 1 && updatedMessages[0].role === 'user') {
+            updatedConversation = updateConversationTitle(updatedConversation);
+        }
+
+        saveConversation(updatedConversation);
+
+        // Update local state
+        setConversations(prev => {
+            const index = prev.findIndex(conv => conv.id === activeConversationId);
+            if (index >= 0) {
+                const updated = [...prev];
+                updated[index] = updatedConversation;
+                // Re-sort by lastModifiedAt
+                return updated.sort((a, b) => b.lastModifiedAt - a.lastModifiedAt);
+            }
+            return [updatedConversation, ...prev];
+        });
+    }, [activeConversationId, activeConversation]);
+
+    const clearHistory = useCallback(() => {
+        if (!activeConversationId) return;
+
+        // Delete current conversation
+        deleteConversationFromStorage(activeConversationId);
+
+        // Create new conversation
+        const newConv = createConversation();
+        saveConversation(newConv);
+
+        setConversations(prev => {
+            const filtered = prev.filter(conv => conv.id !== activeConversationId);
+            return [newConv, ...filtered];
+        });
+        setActiveConversationId(newConv.id);
+    }, [activeConversationId]);
 
     const stopGeneration = useCallback(() => {
         if (abortControllerRef.current) {
@@ -41,7 +96,7 @@ export const useChat = () => {
     }, []);
 
     const sendMessage = useCallback(async (text: string) => {
-        if (!text.trim()) return;
+        if (!text.trim() || !activeConversationId) return;
 
         const newUserMessage: ChatMessage = {
             id: crypto.randomUUID(),
@@ -51,7 +106,9 @@ export const useChat = () => {
         };
 
         // Optimistically add user message
-        setMessages(prev => [...prev, newUserMessage]);
+        const updatedMessagesWithUser = [...messages, newUserMessage];
+        saveActiveConversation(updatedMessagesWithUser);
+
         setInput('');
         setIsLoading(true);
         setError(null);
@@ -69,7 +126,8 @@ export const useChat = () => {
                 timestamp: Date.now(),
             };
 
-            setMessages(prev => [...prev, newAiMessage]);
+            const updatedMessagesWithAi = [...updatedMessagesWithUser, newAiMessage];
+            saveActiveConversation(updatedMessagesWithAi);
         } catch (err: any) {
             // Don't show error if request was aborted by user
             if (err.name !== 'AbortError') {
@@ -79,9 +137,53 @@ export const useChat = () => {
             setIsLoading(false);
             abortControllerRef.current = null;
         }
-    }, [messages]);
+    }, [messages, activeConversationId, saveActiveConversation]);
+
+    const switchConversation = useCallback((conversationId: string) => {
+        setActiveConversationId(conversationId);
+        setError(null);
+    }, []);
+
+    const createNewConversation = useCallback(() => {
+        const newConv = createConversation();
+        saveConversation(newConv);
+        setConversations(prev => [newConv, ...prev]);
+        setActiveConversationId(newConv.id);
+        setError(null);
+    }, []);
+
+    const deleteConversation = useCallback((conversationId: string) => {
+        deleteConversationFromStorage(conversationId);
+
+        setConversations(prev => {
+            const filtered = prev.filter(conv => conv.id !== conversationId);
+
+            // If deleting active conversation, switch to another or create new
+            if (conversationId === activeConversationId) {
+                if (filtered.length > 0) {
+                    setActiveConversationId(filtered[0].id);
+                } else {
+                    // No conversations left, create a new one
+                    const newConv = createConversation();
+                    saveConversation(newConv);
+                    setActiveConversationId(newConv.id);
+                    return [newConv];
+                }
+            }
+
+            return filtered;
+        });
+    }, [activeConversationId]);
 
     return {
+        // Conversation management
+        conversations,
+        activeConversationId,
+        switchConversation,
+        createNewConversation,
+        deleteConversation,
+
+        // Messages (from active conversation)
         messages,
         input,
         setInput,
@@ -89,6 +191,7 @@ export const useChat = () => {
         error,
         sendMessage,
         clearHistory,
-        stopGeneration
+        stopGeneration,
     };
 };
+
