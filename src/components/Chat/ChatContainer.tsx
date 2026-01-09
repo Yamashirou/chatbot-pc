@@ -1,5 +1,5 @@
 import { Cpu, PanelLeft } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useChat } from '../../hooks/useChat';
 import { InputArea } from './InputArea';
 import { MessageList } from './MessageList';
@@ -23,6 +23,22 @@ export const ChatContainer = () => {
 
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+    // Auto-collapse sidebar on mobile screens on initial load
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 768) {
+                setIsSidebarCollapsed(true);
+            }
+        };
+
+        // Check on mount
+        handleResize();
+
+        // Optional: listen for resize events
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     return (
         <div className="flex h-screen w-full bg-black text-gray-100">
             {/* Sidebar */}
@@ -44,8 +60,9 @@ export const ChatContainer = () => {
                         {/* Toggle Sidebar Button */}
                         <button
                             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                            className="p-2 bg-purple-900/50 hover:bg-purple-800/50 border border-purple-700 text-purple-300 transition-all"
+                            className="p-2.5 bg-purple-900/50 hover:bg-purple-800/50 border border-purple-700 text-purple-300 transition-all touch-manipulation"
                             title={isSidebarCollapsed ? 'Tampilkan sidebar' : 'Sembunyikan sidebar'}
+                            aria-label="Toggle sidebar"
                         >
                             <PanelLeft size={18} className={`transition-transform ${isSidebarCollapsed ? '' : 'rotate-180'}`} />
                         </button>
@@ -54,10 +71,11 @@ export const ChatContainer = () => {
                             <Cpu size={18} />
                         </div>
                         <div>
-                            <h1 className="font-semibold text-sm md:text-base text-purple-300">BuildMate - PC Building Assistant</h1>
+                            <h1 className="font-semibold text-sm md:text-base text-purple-300 truncate">BuildMate - PC Building Assistant</h1>
                             <span className="text-xs text-purple-500 flex items-center gap-1">
                                 <span className="w-1.5 h-1.5 bg-purple-400"></span>
-                                Gemini 2.5 Flash • Grounding Enabled
+                                <span className="hidden sm:inline">Gemini 2.5 Flash • Grounding Enabled</span>
+                                <span className="sm:hidden">Online</span>
                             </span>
                         </div>
                     </div>
@@ -68,9 +86,9 @@ export const ChatContainer = () => {
 
                 {/* Error Toast */}
                 {error && (
-                    <div className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-red-900/20 border border-red-500/50 text-red-200 px-4 py-2 text-sm flex items-center gap-2 shadow-xl">
+                    <div className="fixed bottom-24 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:right-auto md:max-w-md bg-red-900/20 border border-red-500/50 text-red-200 px-4 py-2 text-sm flex items-center gap-2 shadow-xl z-30">
                         <span>⚠️ {error}</span>
-                        <button onClick={() => window.location.reload()} className="hover:underline">Retry</button>
+                        <button onClick={() => window.location.reload()} className="hover:underline ml-auto">Retry</button>
                     </div>
                 )}
 

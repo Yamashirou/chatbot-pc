@@ -49,7 +49,7 @@ export const MessageBubble = ({ message, isLast }: MessageBubbleProps) => {
             isUser ? "justify-end" : "justify-start"
         )}>
             <div className={clsx(
-                "flex max-w-[80%] md:max-w-[70%] px-4 py-3 shadow-sm border",
+                "flex max-w-[90%] sm:max-w-[80%] md:max-w-[70%] px-3 md:px-4 py-2.5 md:py-3 shadow-sm border",
                 isUser
                     ? "bg-purple-600 text-white border-purple-500"
                     : "bg-black text-gray-100 border-purple-800"

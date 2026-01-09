@@ -24,16 +24,16 @@ export const MessageList = ({ messages, isLoading }: MessageListProps) => {
 
     if (messages.length === 0) {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center text-purple-400 p-8 text-center h-full">
+            <div className="flex-1 flex flex-col items-center justify-center text-purple-400 p-4 md:p-8 text-center h-full">
                 <div className="w-16 h-16 bg-purple-900/50 flex items-center justify-center mb-4 text-3xl border border-purple-700">🖥️</div>
-                <h2 className="text-xl font-semibold text-purple-200 mb-2">Asisten Rakit PC</h2>
-                <p className="max-w-md text-purple-500 mb-6">Pengetahuan tingkat ahli tentang hardware PC, kompatibilitas komponen, dan optimasi performa.</p>
+                <h2 className="text-lg md:text-xl font-semibold text-purple-200 mb-2">Asisten Rakit PC</h2>
+                <p className="max-w-md text-sm md:text-base text-purple-500 mb-6">Pengetahuan tingkat ahli tentang hardware PC, kompatibilitas komponen, dan optimasi performa.</p>
 
-                <div className="flex flex-wrap justify-center gap-2 max-w-2xl">
+                <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-2 max-w-2xl px-4">
                     {EXAMPLE_QUESTIONS.map((q, i) => (
                         <button
                             key={i}
-                            className="px-3 py-2 text-xs text-purple-300 border border-purple-800 hover:bg-purple-900/30 hover:border-purple-600 transition-colors"
+                            className="px-4 py-2.5 text-xs sm:text-sm text-purple-300 border border-purple-800 hover:bg-purple-900/30 hover:border-purple-600 transition-colors touch-manipulation"
                             onClick={() => {
                                 // Dispatch a custom event to set the input
                                 window.dispatchEvent(new CustomEvent('setInput', { detail: q }));
@@ -48,7 +48,7 @@ export const MessageList = ({ messages, isLoading }: MessageListProps) => {
     }
 
     return (
-        <div className="flex-1 overflow-y-auto p-4 md:p-6">
+        <div className="flex-1 overflow-y-auto p-3 md:p-6">
             <div className="max-w-2xl mx-auto flex flex-col">
                 {messages.map((msg, index) => (
                     <MessageBubble
